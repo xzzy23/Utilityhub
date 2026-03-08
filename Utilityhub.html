@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UtilityHub v15 - Ultimate Glass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f0f4f8; 
+            background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .glass { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .active-nav { background: #2563eb; color: white; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+        
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.5) !important;
+            border: 1px solid rgba(200, 200, 200, 0.3) !important;
+            border-radius: 12px !important;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus { border-color: #2563eb !important; background: white !important; }
+    </style>
+</head>
+<body class="pb-28">
+
+    <header class="p-6 max-w-5xl mx-auto flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tighter">UtilityHub<span class="text-blue-600">.</span></h1>
+            <p id="live-clock" class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Sunday, 12:00 PM</p>
+        </div>
+        <div class="flex items-center gap-3">
+             <div class="hidden md:block text-right">
+                <p id="ipDisp" class="text-[10px] font-bold text-blue-600">0.0.0.0</p>
+                <p class="text-[8px] text-slate-400 uppercase font-bold">Secure Connection</p>
+             </div>
+             <button onclick="toggleMusic()" id="playBtn" class="w-10 h-10 glass rounded-full flex items-center justify-center text-sm shadow-sm">▶</button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4">
+        
+        <div id="home-tab" class="tab-content active space-y-4">
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+                <div class="relative z-10 flex justify-between items-center">
+                    <div>
+                        <h2 id="tempDisp" class="text-6xl font-black">--°C</h2>
+                        <p id="cityDisp" class="text-xs font-bold opacity-70 uppercase tracking-widest mt-2 font-mono">Input City Below</p>
+                    </div>
+                    <div class="text-right space-y-2">
+                        <input type="text" id="cityInp" placeholder="Cari kota..." class="w-24 md:w-40 p-2 text-xs text-slate-900 !bg-white/20 !border-white/20 !text-white placeholder:text-white/60">
+                        <button onclick="getWeather()" class="block ml-auto bg-white text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Update</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="world-clocks">
+                </div>
+        </div>
+
+        <div id="tech-tab" class="tab-content space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass p-6 rounded-[2rem]">
+                    <h3 class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-4">🛡️ Privacy Trace</h3>
+                    <input type="text" id="linkInp" placeholder="Paste link pendek..." class="w-full p-3 text-sm mb-3">
+                    <button onclick="checkLink()" class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-orange-200">UNSHORTEN LINK</button>
+                    <div id="linkRes" class="hidden mt-3 p-3 bg-white/50 rounded-xl text-[10px] font-mono break-all border"></div>
+                </div>
+
+                <div class="glass p-6 rounded-[2rem]">
+                    <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">🔐 Pass Generator</h3>
+                    <input type="text" id="passDisp" readonly class="w-full p-3 text-center font-mono text-lg mb-3">
+                    <button onclick="genPass()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-blue-200">GENERATE PASS</button>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-[2rem]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">📱 QR Matrix</h3>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="qrInp" placeholder="Teks atau URL..." class="flex-1 p-3 text-sm">
+                    <button onclick="genQR()" class="bg-slate-800 text-white px-6 rounded-xl font-bold text-xs">CREATE</button>
+                </div>
+                <div id="qrRes" class="flex justify-center"></div>
+            </div>
+
+            <div class="glass p-6 rounded-[2rem]">
+                <h3 class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-4">🔠 Text Analysis</h3>
+                <textarea id="textInp" oninput="analyzeText()" class="w-full h-24 p-4 text-sm mb-3" placeholder="Ketik sesuatu untuk dianalisis..."></textarea>
+                <div class="flex justify-around text-xs font-bold">
+                    <div class="bg-blue-50 text-blue-600 px-4 py-2 rounded-full">Karakter: <span id="cCount">0</span></div>
+                    <div class="bg-green-50 text-green-600 px-4 py-2 rounded-full">Kata: <span id="wCount">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tools-tab" class="tab-content space-y-4">
+            <div class="glass p-6 rounded-[2rem]">
+                <h3 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4">🖼️ Image Resizer</h3>
+                <input type="file" id="imgInp" class="block w-full text-xs mb-4">
+                <div class="flex gap-2">
+                    <input type="number" id="imgW" placeholder="Lebar (px)" class="flex-1 p-3 text-sm">
+                    <button onclick="resizeImg()" class="bg-indigo-600 text-white px-8 rounded-xl font-bold text-xs">RESIZE & DOWNLOAD</button>
+                </div>
+                <canvas id="canvas" class="hidden"></canvas>
+            </div>
+
+            <div class="glass p-6 rounded-[2rem]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">📏 Unit Converter</h3>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <select id="uType" class="p-3 text-xs md:w-1/3">
+                        <option value="temp">Celcius → Fahrenheit</option>
+                        <option value="weight">Kilogram → Pounds</option>
+                    </select>
+                    <input type="number" id="uInp" oninput="convertU()" placeholder="Nilai" class="p-3 text-sm md:w-1/3">
+                    <input type="text" id="uOut" readonly placeholder="Hasil" class="p-3 bg-blue-50 text-blue-600 font-black md:w-1/3">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 glass rounded-full p-2 flex gap-1 z-50">
+        <button onclick="openTab('home-tab', this)" class="nav-btn active-nav px-6 py-3 rounded-full text-xs font-bold transition-all">🏠 Home</button>
+        <button onclick="openTab('tech-tab', this)" class="nav-btn px-6 py-3 rounded-full text-xs font-bold text-slate-500 transition-all">🛠️ Tech</button>
+        <button onclick="openTab('tools-tab', this)" class="nav-btn px-6 py-3 rounded-full text-xs font-bold text-slate-500 transition-all">🖼️ Media</button>
+    </nav>
+
+    <audio id="bgAudio" loop src="https://files.catbox.moe/cut6mn.mp4"></audio>
+
+    <script>
+        // NAVIGATION
+        function openTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-nav', 'text-white'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('text-slate-500'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active-nav');
+            btn.classList.remove('text-slate-500');
+        }
+
+        // CLOCK & IP
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'}) + " • " + now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+            
+            const zones = [{n:'Jakarta',z:'Asia/Jakarta'},{n:'Tokyo',z:'Asia/Tokyo'},{n:'London',z:'Europe/London'},{n:'New York',z:'America/New_York'}];
+            document.getElementById('world-clocks').innerHTML = zones.map(z => `
+                <div class="glass p-4 rounded-3xl text-center">
+                    <p class="text-[8px] font-black text-slate-400 uppercase">${z.n}</p>
+                    <p class="text-sm font-bold text-blue-600">${now.toLocaleTimeString('id-ID',{timeZone:z.z, hour:'2-digit', minute:'2-digit'})}</p>
+                </div>
+            `).join('');
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        async function getInfo() {
+            try {
+                const r = await fetch('https://api.ipify.org?format=json');
+                const d = await r.json();
+                document.getElementById('ipDisp').innerText = d.ip;
+            } catch(e) { document.getElementById('ipDisp').innerText = "Offline"; }
+        }
+        getInfo();
+
+        // WEATHER
+        async function getWeather() {
+            const c = document.getElementById('cityInp').value, k = "fddc7c177cf56a8f902573b11dc8d25a";
+            if(!c) return;
+            try {
+                const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${c}&appid=${k}&units=metric`);
+                const d = await r.json();
+                document.getElementById('tempDisp').innerText = Math.round(d.main.temp)+"°C";
+                document.getElementById('cityDisp').innerText = d.name.toUpperCase();
+            } catch(e) { alert("Kota tidak ditemukan"); }
+        }
+
+        // TOOLS LOGIC
+        function genPass() { const c = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*"; document.getElementById('passDisp').value = Array.from({length:16}, () => c[Math.floor(Math.random()*c.length)]).join(''); }
+        function genQR() { const v = document.getElementById('qrInp').value; document.getElementById('qrRes').innerHTML = v ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(v)}" class="rounded-2xl border-4 border-white shadow-lg">` : ""; }
+        function analyzeText() { const v = document.getElementById('textInp').value.trim(); document.getElementById('cCount').innerText = v.length; document.getElementById('wCount').innerText = v ? v.split(/\s+/).length : 0; }
+        function convertU() { const t = document.getElementById('uType').value, v = parseFloat(document.getElementById('uInp').value); if(isNaN(v)) return; document.getElementById('uOut').value = t==='temp' ? ((v*9/5)+32).toFixed(1)+" °F" : (v*2.204).toFixed(2)+" Lbs"; }
+        
+        async function checkLink() {
+            const link = document.getElementById('linkInp').value;
+            const resEl = document.getElementById('linkRes');
+            if(!link) return;
+            resEl.classList.remove('hidden'); resEl.innerText = "Tracing destination...";
+            try {
+                const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(link)}`);
+                const d = await r.json();
+                resEl.innerText = "Destination: " + (d.status.url || link);
+            } catch(e) { resEl.innerText = "Trace failed."; }
+        }
+
+        function resizeImg() {
+            const f = document.getElementById('imgInp').files[0], w = document.getElementById('imgW').value;
+            if(!f || !w) return;
+            const r = new FileReader(); r.readAsDataURL(f);
+            r.onload = (e) => {
+                const i = new Image(); i.src = e.target.result;
+                i.onload = () => {
+                    const c = document.getElementById('canvas'), x = c.getContext('2d');
+                    c.width = w; c.height = i.height * (w/i.width);
+                    x.drawImage(i,0,0,c.width,c.height);
+                    const l = document.createElement('a'); l.download='resized.png'; l.href=c.toDataURL(); l.click();
+                }
+            }
+        }
+
+        // MUSIC
+        const audio = document.getElementById('bgAudio');
+        function toggleMusic() {
+            const btn = document.getElementById('playBtn');
+            if(audio.paused) { audio.play(); btn.innerText="⏸"; }
+            else { audio.pause(); btn.innerText="▶"; }
+        }
+    </script>
+</body>
+</html>
