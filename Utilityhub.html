@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UtilityHub v15 - Ultimate Glass</title>
+    <title>UtilityHub v16 - Ultimate Glass + Downloader</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -46,7 +46,7 @@
     <header class="p-6 max-w-5xl mx-auto flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-black text-slate-900 tracking-tighter">UtilityHub<span class="text-blue-600">.</span></h1>
-            <p id="live-clock" class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Sunday, 12:00 PM</p>
+            <p id="live-clock" class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Loading...</p>
         </div>
         <div class="flex items-center gap-3">
              <div class="hidden md:block text-right">
@@ -72,9 +72,7 @@
                     </div>
                 </div>
             </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="world-clocks">
-                </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="world-clocks"></div>
         </div>
 
         <div id="tech-tab" class="tab-content space-y-4">
@@ -113,6 +111,19 @@
         </div>
 
         <div id="tools-tab" class="tab-content space-y-4">
+            <div class="glass p-6 rounded-[2rem] border-2 border-blue-100">
+                <h3 class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-4">📥 Universal Downloader</h3>
+                <p class="text-[9px] text-slate-400 mb-3 uppercase font-bold tracking-tighter">Support: YouTube, TikTok, IG, FB</p>
+                <input type="text" id="dlUrl" placeholder="Paste link video di sini..." class="w-full p-3 text-sm mb-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="downloadMedia('mp3')" class="bg-red-600 text-white py-3 rounded-xl font-bold text-[10px] shadow-lg shadow-red-100 uppercase">Audio (MP3)</button>
+                    <button onclick="downloadMedia('720')" class="bg-slate-800 text-white py-3 rounded-xl font-bold text-[10px] shadow-lg shadow-slate-200 uppercase">Video (MP4)</button>
+                </div>
+                <div id="dlStatus" class="hidden mt-4 p-3 bg-blue-50 rounded-xl text-center">
+                    <div class="animate-pulse text-[10px] font-bold text-blue-600 uppercase tracking-widest">Processing Link...</div>
+                </div>
+            </div>
+
             <div class="glass p-6 rounded-[2rem]">
                 <h3 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4">🖼️ Image Resizer</h3>
                 <input type="file" id="imgInp" class="block w-full text-xs mb-4">
@@ -146,7 +157,6 @@
     <audio id="bgAudio" loop src="https://files.catbox.moe/cut6mn.mp4"></audio>
 
     <script>
-        // NAVIGATION
         function openTab(id, btn) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-nav', 'text-white'));
@@ -156,11 +166,9 @@
             btn.classList.remove('text-slate-500');
         }
 
-        // CLOCK & IP
         function updateClock() {
             const now = new Date();
             document.getElementById('live-clock').innerText = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'}) + " • " + now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-            
             const zones = [{n:'Jakarta',z:'Asia/Jakarta'},{n:'Tokyo',z:'Asia/Tokyo'},{n:'London',z:'Europe/London'},{n:'New York',z:'America/New_York'}];
             document.getElementById('world-clocks').innerHTML = zones.map(z => `
                 <div class="glass p-4 rounded-3xl text-center">
@@ -180,7 +188,6 @@
         }
         getInfo();
 
-        // WEATHER
         async function getWeather() {
             const c = document.getElementById('cityInp').value, k = "fddc7c177cf56a8f902573b11dc8d25a";
             if(!c) return;
@@ -192,7 +199,6 @@
             } catch(e) { alert("Kota tidak ditemukan"); }
         }
 
-        // TOOLS LOGIC
         function genPass() { const c = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*"; document.getElementById('passDisp').value = Array.from({length:16}, () => c[Math.floor(Math.random()*c.length)]).join(''); }
         function genQR() { const v = document.getElementById('qrInp').value; document.getElementById('qrRes').innerHTML = v ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(v)}" class="rounded-2xl border-4 border-white shadow-lg">` : ""; }
         function analyzeText() { const v = document.getElementById('textInp').value.trim(); document.getElementById('cCount').innerText = v.length; document.getElementById('wCount').innerText = v ? v.split(/\s+/).length : 0; }
@@ -210,6 +216,18 @@
             } catch(e) { resEl.innerText = "Trace failed."; }
         }
 
+        // DOWNLOADER LOGIC
+        function downloadMedia(quality) {
+            const url = document.getElementById('dlUrl').value;
+            const status = document.getElementById('dlStatus');
+            if(!url) return alert("Masukkan link video dulu!");
+            status.classList.remove('hidden');
+            // Menggunakan API helper Loader.to untuk memproses download secara eksternal
+            const dlLink = `https://loader.to/api/button/?url=${encodeURIComponent(url)}&f=${quality}`;
+            window.open(dlLink, '_blank');
+            setTimeout(() => status.classList.add('hidden'), 3000);
+        }
+
         function resizeImg() {
             const f = document.getElementById('imgInp').files[0], w = document.getElementById('imgW').value;
             if(!f || !w) return;
@@ -225,7 +243,6 @@
             }
         }
 
-        // MUSIC
         const audio = document.getElementById('bgAudio');
         function toggleMusic() {
             const btn = document.getElementById('playBtn');
